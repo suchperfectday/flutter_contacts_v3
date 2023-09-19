@@ -308,6 +308,7 @@ class Contact {
       'BEGIN:VCARD',
       v4 ? 'VERSION:4.0' : 'VERSION:3.0',
     ];
+    lines.add('ID:$id');
     if (productId != null) {
       lines.add('PRODID:$productId');
     }
