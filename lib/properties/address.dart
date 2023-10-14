@@ -188,7 +188,8 @@ class Address {
         pobox.isNotEmpty ||
         city.isNotEmpty ||
         state.isNotEmpty ||
-        postalCode.isNotEmpty) {
+        postalCode.isNotEmpty ||
+        country.isNotEmpty) {
       s += ':${vCardEncode(pobox)};;'
           '${vCardEncode(street)};'
           '${vCardEncode(city)};'
@@ -196,7 +197,7 @@ class Address {
           '${vCardEncode(postalCode)};'
           '${vCardEncode(country)}';
     } else {
-      s += ':;;${vCardEncode(address)};;;;';
+      s += ':;;;;;;';
     }
     return [s];
   }
