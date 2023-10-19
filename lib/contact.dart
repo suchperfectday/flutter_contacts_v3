@@ -263,6 +263,13 @@ class Contact {
       'websites=$websites, socialMedias=$socialMedias, events=$events, '
       'notes=$notes, accounts=$accounts, groups=$groups)';
 
+  String toStringForHash() =>
+      'Contact(displayName=$displayName, '
+      'name=$name, phones=$phones, '
+      'emails=$emails, addresses=$addresses, organizations=$organizations, '
+      'websites=$websites, socialMedias=$socialMedias, '
+      'notes=$notes, accounts=$accounts, groups=$groups)';
+
   /// Inserts the contact into the database.
   Future<Contact> insert() => FlutterContacts.insertContact(this);
 
