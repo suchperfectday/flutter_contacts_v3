@@ -125,6 +125,15 @@ class VCardParser {
             // Pass.
           }
           break;
+        case 'ID_HASH':
+          // The content can be base64-encoded or a URL. Try to decode it, and
+          // ignore the line if it fails.
+          try {
+            contact.id_hash = content;
+          } on FormatException {
+            // Pass.
+          }
+          break;
         case 'N':
           // Format is N:<last>;<first>;<middle>;<prefix>;<suffix>
           final parts = content.split(';');
