@@ -69,6 +69,8 @@ class Contact {
   /// The unique identifier of the contact.
   String id;
 
+  String? id_hash;
+
   /// The contact display name.
   String displayName;
 
@@ -131,6 +133,7 @@ class Contact {
 
   Contact({
     this.id = '',
+    this.id_hash = '',
     this.displayName = '',
     this.thumbnail,
     this.photo,
@@ -160,6 +163,7 @@ class Contact {
 
   factory Contact.fromJson(Map<String, dynamic> json) => Contact(
         id: (json['id'] as String?) ?? '',
+        id_hash: (json['id_hash'] as String?) ?? '',
         displayName: (json['displayName'] as String?) ?? '',
         thumbnail: json['thumbnail'] as Uint8List?,
         photo: json['photo'] as Uint8List?,
@@ -203,6 +207,7 @@ class Contact {
   }) =>
       Map<String, dynamic>.from({
         'id': id,
+        'id_hash': id_hash,
         'displayName': displayName,
         'thumbnail': withThumbnail ? thumbnail : null,
         'photo': withPhoto ? photo : null,
@@ -316,6 +321,9 @@ class Contact {
       v4 ? 'VERSION:4.0' : 'VERSION:3.0',
     ];
     lines.add('ID:$id');
+    if (id_hash != null) {
+      lines.add('ID_HASH:$id_hash');
+    }
     if (productId != null) {
       lines.add('PRODID:$productId');
     }
