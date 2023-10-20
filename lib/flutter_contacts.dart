@@ -140,7 +140,9 @@ class FlutterContacts {
     // This avoids the accidental case where we want to update a contact but
     // insert it instead, which would result in two identical contacts.
     if (contact.id.isNotEmpty) {
-      throw Exception('Cannot insert contact that already has an ID');
+      print(
+          'Inserting contact with exist id: ${contact.id} ${contact.displayName}');
+      // throw Exception('Cannot insert contact that already has an ID');
     }
     if (!contact.isUnified) {
       throw Exception('Cannot insert raw contacts');

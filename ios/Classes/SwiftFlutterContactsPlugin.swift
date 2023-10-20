@@ -190,12 +190,13 @@ public enum FlutterContacts {
         _ args: [String: Any?],
         _ includeNotesOnIos13AndAbove: Bool
     ) throws -> [String: Any?] {
+        let id = args["id"] as String?
         let contact = CNMutableContact()
 
         addFieldsToContact(args, contact, includeNotesOnIos13AndAbove)
 
         let saveRequest = CNSaveRequest()
-        saveRequest.add(contact, toContainerWithIdentifier: nil)
+        saveRequest.add(contact, toContainerWithIdentifier: id)
         try CNContactStore().execute(saveRequest)
         return Contact(fromContact: contact).toMap()
     }
