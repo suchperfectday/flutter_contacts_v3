@@ -117,22 +117,10 @@ class VCardParser {
           }
           break;
         case 'ID':
-          // The content can be base64-encoded or a URL. Try to decode it, and
-          // ignore the line if it fails.
-          try {
-            contact.id = content;
-          } on FormatException {
-            // Pass.
-          }
+          contact.id = content;
           break;
         case 'ID_HASH':
-          // The content can be base64-encoded or a URL. Try to decode it, and
-          // ignore the line if it fails.
-          try {
-            contact.id_hash = content;
-          } on FormatException {
-            // Pass.
-          }
+          contact.id_hash = content;
           break;
         case 'N':
           // Format is N:<last>;<first>;<middle>;<prefix>;<suffix>
