@@ -272,7 +272,7 @@ class Contact {
       'Contact(displayName=$displayName, '
       'name=$name, phones=$phones, '
       'emails=$emails, addresses=$addresses, organizations=$organizations, '
-      'websites=$websites, socialMedias=$socialMedias, '
+      'websites=$websites, socialMedias=$socialMedias, events=$events, '
       'notes=$notes, accounts=$accounts, groups=$groups)';
 
   /// Inserts the contact into the database.
