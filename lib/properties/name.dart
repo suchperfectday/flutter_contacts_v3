@@ -77,7 +77,7 @@ class Name {
     this.firstPhonetic = '',
     this.lastPhonetic = '',
     this.middlePhonetic = '',
-  });
+      });
 
   factory Name.fromJson(Map<String, dynamic> json) => Name(
         first: (json['first'] as String?) ?? '',
@@ -89,7 +89,7 @@ class Name {
         firstPhonetic: (json['firstPhonetic'] as String?) ?? '',
         lastPhonetic: (json['lastPhonetic'] as String?) ?? '',
         middlePhonetic: (json['middlePhonetic'] as String?) ?? '',
-      );
+              );
 
   Map<String, dynamic> toJson() => {
         'first': first,
@@ -101,7 +101,7 @@ class Name {
         'firstPhonetic': firstPhonetic,
         'lastPhonetic': lastPhonetic,
         'middlePhonetic': middlePhonetic,
-      };
+              };
 
   @override
   int get hashCode =>
@@ -143,6 +143,15 @@ class Name {
     final components = [last, first, middle, prefix, suffix];
     if (components.any((x) => x.isNotEmpty)) {
       lines.add('N:' + components.map(vCardEncode).join(';'));
+    }
+    if (firstPhonetic.isNotEmpty) {
+      lines.add('X-PHONETIC-FIRST-NAME:' + vCardEncode(firstPhonetic));
+    }
+    if (middlePhonetic.isNotEmpty) {
+      lines.add('X-PHONETIC-MIDDLE-NAME:' + vCardEncode(middlePhonetic));
+    }
+    if (lastPhonetic.isNotEmpty) {
+      lines.add('X-PHONETIC-LAST-NAME:' + vCardEncode(lastPhonetic));
     }
     if (nickname.isNotEmpty) {
       lines.add('NICKNAME:' + vCardEncode(nickname));

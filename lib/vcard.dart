@@ -352,6 +352,9 @@ class VCardParser {
         case 'X-PHONETIC-FIRST-NAME':
           contact.name.firstPhonetic = decode(content);
           break;
+        case 'X-PHONETIC-MIDDLE-NAME':
+          contact.name.middlePhonetic = decode(content);
+          break;
         case 'X-PHONETIC-LAST-NAME':
           contact.name.lastPhonetic = decode(content);
           break;
