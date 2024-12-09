@@ -270,10 +270,12 @@ class Contact {
 
   String toStringForHash(){
     String displayName = this.displayName;
+    this.phones.sort((a, b) => a.number.compareTo(b.number));
     String phones = this.phones.map((e) => e.number).join(",");
     String city = this.addresses.isEmpty ? '' : this.addresses.first.city;
     String country = this.addresses.isEmpty ? '' : this.addresses.first.country;
-    String email = this.emails.isEmpty ? '' : this.emails.first.address;
+    this.emails.sort((a, b) => a.address.compareTo(b.address));
+    String email = this.emails.isEmpty ? '' : this.emails.map((e) => e.address).join(",");
     String title =
         this.organizations.isNotEmpty ? this.organizations.first.title : '';
     String company =
@@ -282,8 +284,6 @@ class Contact {
     String websites = this.websites.map((e) => e.url).join(",");
     this.socialMedias.sort((a, b) => a.toString().compareTo(b.toString()));
     String socialMedias = this.socialMedias.map((e) => e.toString()).join(",");
-    String thumbnail =
-        this.thumbnail != null ? base64.encode(this.thumbnail!) : '';
     String contexts = this.name.prefix;
     String notes = this.name.suffix;
 
