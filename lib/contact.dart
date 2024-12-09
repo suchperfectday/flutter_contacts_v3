@@ -268,12 +268,39 @@ class Contact {
       'websites=$websites, socialMedias=$socialMedias, events=$events, '
       'notes=$notes, accounts=$accounts, groups=$groups)';
 
-  String toStringForHash() =>
-      'Contact(displayName=$displayName, '
-      'name=$name, phones=$phones, '
-      'emails=$emails, addresses=$addresses, organizations=$organizations, '
-      'websites=$websites, socialMedias=$socialMedias, events=$events, '
-      'notes=$notes, accounts=$accounts, groups=$groups)';
+  String toStringForHash(){
+    String displayName = this.displayName;
+    this.phones.sort((a, b) => a.number.compareTo(b.number));
+    String phones = this.phones.map((e) => e.number).join(",");
+    String city = this.addresses.isEmpty ? '' : this.addresses.first.city;
+    String country = this.addresses.isEmpty ? '' : this.addresses.first.country;
+    this.emails.sort((a, b) => a.address.compareTo(b.address));
+    String email = this.emails.isEmpty ? '' : this.emails.map((e) => e.address).join(",");
+    String title =
+        this.organizations.isNotEmpty ? this.organizations.first.title : '';
+    String company =
+        this.organizations.isNotEmpty ? this.organizations.first.company : '';
+    this.websites.sort((a, b) => a.url.compareTo(b.url));
+    String websites = this.websites.map((e) => e.url).join(",");
+    this.socialMedias.sort((a, b) => a.toString().compareTo(b.toString()));
+    String socialMedias = this.socialMedias.map((e) => e.toString()).join(",");
+    String contexts = this.name.prefix;
+    String notes = this.name.suffix;
+
+    Event? birthday = this
+                .events
+                .where((Event element) {
+                  return element.label == EventLabel.birthday;
+                })
+                .toList()
+                .firstOrNull !=
+            null
+        ? this.events.first
+        : null;
+    String dob = birthday != null ? birthday.toString() : '';
+
+    return "$displayName$phones$city$country$email$title$company$websites$socialMedias$thumbnail$contexts$notes$dob";
+  }
 
   /// Inserts the contact into the database.
   Future<Contact> insert() => FlutterContacts.insertContact(this);
