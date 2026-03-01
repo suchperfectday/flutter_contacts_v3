@@ -432,7 +432,15 @@ public class SwiftFlutterContactsPlugin: NSObject, FlutterPlugin, FlutterStreamH
             name: "github.com/QuisApp/flutter_contacts/events",
             binaryMessenger: registrar.messenger()
         )
-        let rootViewController = UIApplication.shared.delegate!.window!!.rootViewController!
+        let rootViewController: UIViewController
+        if #available(iOS 13.0, *),
+           let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let vc = scene.windows.first(where: { $0.isKeyWindow })?.rootViewController
+                     ?? scene.windows.first?.rootViewController {
+            rootViewController = vc
+        } else {
+            rootViewController = UIApplication.shared.delegate!.window!!.rootViewController!
+        }
         let instance = SwiftFlutterContactsPlugin(rootViewController)
         registrar.addMethodCallDelegate(instance, channel: channel)
         eventChannel.setStreamHandler(instance)
@@ -675,7 +683,14 @@ public class SwiftFlutterContactsPlugin: NSObject, FlutterPlugin, FlutterStreamH
 
     @objc func contactViewControllerDidCancel() {
         if let result = externalResult {
-            let viewController: UIViewController? = UIApplication.shared.delegate?.window??.rootViewController
+            let viewController: UIViewController?
+            if #available(iOS 13.0, *),
+               let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                viewController = scene.windows.first(where: { $0.isKeyWindow })?.rootViewController
+                                 ?? scene.windows.first?.rootViewController
+            } else {
+                viewController = UIApplication.shared.delegate?.window??.rootViewController
+            }
             viewController?.dismiss(animated: true, completion: nil)
             result(nil)
             externalResult = nil
