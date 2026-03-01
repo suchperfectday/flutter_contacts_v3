@@ -14,9 +14,9 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_contacts/ios"
 
 SPEC CHECKSUMS:
-  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  flutter_contacts: edb1c5ce76aa433e20e6cb14c615f4c0b66e0983
+  Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_contacts: 5e27c1171d9b946736bd5f056a49c62c0134d337
 
-PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3
+PODFILE CHECKSUM: 4153e6b74d179c1f6ffe1ab35f4a753651267dd0
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.16.2
