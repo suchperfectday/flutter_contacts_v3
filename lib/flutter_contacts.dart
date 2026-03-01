@@ -248,7 +248,7 @@ class FlutterContacts {
       _eventSubscription!.cancel();
     }
     _eventSubscribers.add(listener);
-    final runAllListeners = (event) => _eventSubscribers.forEach((f) => f());
+    void runAllListeners(dynamic event) => _eventSubscribers.forEach((f) => f());
     _eventSubscription =
         _eventChannel.receiveBroadcastStream().listen(runAllListeners);
   }
@@ -268,7 +268,7 @@ class FlutterContacts {
     if (_eventSubscribers.isEmpty) {
       _eventSubscription = null;
     } else {
-      final runAllListeners = (event) => _eventSubscribers.forEach((f) => f());
+      void runAllListeners(dynamic event) => _eventSubscribers.forEach((f) => f());
       _eventSubscription =
           _eventChannel.receiveBroadcastStream().listen(runAllListeners);
     }
