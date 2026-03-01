@@ -420,7 +420,15 @@ public enum FlutterContacts {
 
 @available(iOS 9.0, *)
 public class SwiftFlutterContactsPlugin: NSObject, FlutterPlugin, FlutterStreamHandler, CNContactViewControllerDelegate, CNContactPickerDelegate {
-    private let rootViewController: UIViewController
+    private var rootViewController: UIViewController {
+        if #available(iOS 13.0, *),
+           let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let vc = scene.windows.first(where: { $0.isKeyWindow })?.rootViewController
+                     ?? scene.windows.first?.rootViewController {
+            return vc
+        }
+        return UIApplication.shared.delegate!.window!!.rootViewController!
+    }
     private var externalResult: FlutterResult?
 
     public static func register(with registrar: FlutterPluginRegistrar) {
@@ -432,22 +440,9 @@ public class SwiftFlutterContactsPlugin: NSObject, FlutterPlugin, FlutterStreamH
             name: "github.com/QuisApp/flutter_contacts/events",
             binaryMessenger: registrar.messenger()
         )
-        let rootViewController: UIViewController
-        if #available(iOS 13.0, *),
-           let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let vc = scene.windows.first(where: { $0.isKeyWindow })?.rootViewController
-                     ?? scene.windows.first?.rootViewController {
-            rootViewController = vc
-        } else {
-            rootViewController = UIApplication.shared.delegate!.window!!.rootViewController!
-        }
-        let instance = SwiftFlutterContactsPlugin(rootViewController)
+        let instance = SwiftFlutterContactsPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
         eventChannel.setStreamHandler(instance)
-    }
-
-    init(_ rootViewController: UIViewController) {
-        self.rootViewController = rootViewController
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -683,15 +678,7 @@ public class SwiftFlutterContactsPlugin: NSObject, FlutterPlugin, FlutterStreamH
 
     @objc func contactViewControllerDidCancel() {
         if let result = externalResult {
-            let viewController: UIViewController?
-            if #available(iOS 13.0, *),
-               let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                viewController = scene.windows.first(where: { $0.isKeyWindow })?.rootViewController
-                                 ?? scene.windows.first?.rootViewController
-            } else {
-                viewController = UIApplication.shared.delegate?.window??.rootViewController
-            }
-            viewController?.dismiss(animated: true, completion: nil)
+            rootViewController.dismiss(animated: true, completion: nil)
             result(nil)
             externalResult = nil
         }
