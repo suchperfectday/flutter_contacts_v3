@@ -307,6 +307,44 @@ class FlutterContacts {
     return id == null ? null : getContact(id);
   }
 
+  /// Returns contacts changed since [token]. If token is null, returns all contacts.
+  /// Requires iOS 13+.
+  static Future<Map<String, dynamic>?> getChangedContacts({
+    String? token,
+    bool withProperties = true,
+    bool withThumbnail = false,
+    bool withPhoto = false,
+  }) async {
+    try {
+      final result = await _channel.invokeMethod('getChangedContacts', [
+        token, withProperties, withThumbnail, withPhoto,
+      ]);
+      if (result == null) return null;
+      final map = Map<String, dynamic>.from(result);
+      final updatedList = map['updated'] as List? ?? [];
+      final updated = updatedList
+          .map((c) => Contact.fromJson(Map<String, dynamic>.from(c)))
+          .toList();
+      final deleted = (map['deleted'] as List?)?.cast<String>() ?? [];
+      return {
+        'token': map['token'] as String?,
+        'updated': updated,
+        'deleted': deleted,
+      };
+    } on PlatformException {
+      return null;
+    }
+  }
+
+  /// Returns the current history token without fetching changes.
+  static Future<String?> getCurrentHistoryToken() async {
+    try {
+      return await _channel.invokeMethod<String?>('getCurrentHistoryToken');
+    } on PlatformException {
+      return null;
+    }
+  }
+
   static Future<List<Contact>> _select({
     String? id,
     bool withProperties = false,
