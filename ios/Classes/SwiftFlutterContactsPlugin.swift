@@ -645,6 +645,109 @@ public class SwiftFlutterContactsPlugin: NSObject, FlutterPlugin, FlutterStreamH
                 self.rootViewController.present(navigationController, animated: true, completion: nil)
                 self.externalResult = result
             }
+        case "getChangedContacts":
+            DispatchQueue.global(qos: .userInteractive).async {
+                if #available(iOS 13, *) {
+                    let args = call.arguments as! [Any?]
+                    let tokenBase64 = args[0] as? String
+                    let withProperties = args[1] as! Bool
+                    let withThumbnail = args[2] as! Bool
+                    let withPhoto = args[3] as! Bool
+
+                    var keys: [CNKeyDescriptor] = [
+                        CNContactFormatter.descriptorForRequiredKeys(for: .fullName),
+                        CNContactIdentifierKey as CNKeyDescriptor,
+                    ]
+                    if withProperties {
+                        keys += [
+                            CNContactGivenNameKey as CNKeyDescriptor,
+                            CNContactFamilyNameKey as CNKeyDescriptor,
+                            CNContactMiddleNameKey as CNKeyDescriptor,
+                            CNContactNamePrefixKey as CNKeyDescriptor,
+                            CNContactNameSuffixKey as CNKeyDescriptor,
+                            CNContactNicknameKey as CNKeyDescriptor,
+                            CNContactPhoneticGivenNameKey as CNKeyDescriptor,
+                            CNContactPhoneticFamilyNameKey as CNKeyDescriptor,
+                            CNContactPhoneticMiddleNameKey as CNKeyDescriptor,
+                            CNContactPhoneNumbersKey as CNKeyDescriptor,
+                            CNContactEmailAddressesKey as CNKeyDescriptor,
+                            CNContactPostalAddressesKey as CNKeyDescriptor,
+                            CNContactOrganizationNameKey as CNKeyDescriptor,
+                            CNContactJobTitleKey as CNKeyDescriptor,
+                            CNContactDepartmentNameKey as CNKeyDescriptor,
+                            CNContactUrlAddressesKey as CNKeyDescriptor,
+                            CNContactSocialProfilesKey as CNKeyDescriptor,
+                            CNContactInstantMessageAddressesKey as CNKeyDescriptor,
+                            CNContactBirthdayKey as CNKeyDescriptor,
+                            CNContactDatesKey as CNKeyDescriptor,
+                            CNContactPhoneticOrganizationNameKey as CNKeyDescriptor,
+                        ]
+                    }
+                    if withThumbnail { keys.append(CNContactThumbnailImageDataKey as CNKeyDescriptor) }
+                    if withPhoto { keys.append(CNContactImageDataKey as CNKeyDescriptor) }
+
+                    var tokenData: Data? = nil
+                    if let tokenBase64 = tokenBase64 {
+                        tokenData = Data(base64Encoded: tokenBase64)
+                    }
+
+                    do {
+                        let fetchResult = try CNChangeHistoryHelper.fetchChanges(
+                            since: tokenData,
+                            additionalKeys: keys
+                        )
+
+                        let rawUpdated = fetchResult["updated"] as? [[String: Any]] ?? []
+                        var updated: [[String: Any?]] = []
+                        for item in rawUpdated {
+                            if let contact = item["contact"] as? CNContact {
+                                updated.append(Contact(fromContact: contact).toMap())
+                            }
+                        }
+                        let deleted = fetchResult["deleted"] as? [String] ?? []
+                        let newToken = fetchResult["token"] as? Data
+                        let newTokenBase64 = newToken?.base64EncodedString()
+
+                        DispatchQueue.main.async {
+                            result([
+                                "token": newTokenBase64 as Any,
+                                "updated": updated,
+                                "deleted": deleted,
+                            ] as [String: Any])
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            result(FlutterError(
+                                code: "CHANGE_HISTORY_ERROR",
+                                message: "Failed to fetch change history",
+                                details: error.localizedDescription
+                            ))
+                        }
+                    }
+                } else {
+                    result(FlutterError(
+                        code: "UNSUPPORTED",
+                        message: "CNChangeHistoryFetchRequest requires iOS 13+",
+                        details: nil
+                    ))
+                }
+            }
+        case "getCurrentHistoryToken":
+            DispatchQueue.global(qos: .userInteractive).async {
+                if #available(iOS 13, *) {
+                    if let token = CNChangeHistoryHelper.currentHistoryToken() {
+                        result(token.base64EncodedString())
+                    } else {
+                        result(nil)
+                    }
+                } else {
+                    result(FlutterError(
+                        code: "UNSUPPORTED",
+                        message: "currentHistoryToken requires iOS 13+",
+                        details: nil
+                    ))
+                }
+            }
         default:
             result(FlutterMethodNotImplemented)
         }
