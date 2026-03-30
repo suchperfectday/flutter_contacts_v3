@@ -692,16 +692,10 @@ public class SwiftFlutterContactsPlugin: NSObject, FlutterPlugin, FlutterStreamH
                     }
 
                     do {
-                        guard let fetchResult = try CNChangeHistoryHelper.fetchChanges(
+                        let fetchResult = try CNChangeHistoryHelper.fetchChanges(
                             since: tokenData,
                             additionalKeys: keys
-                        ) else {
-                            throw NSError(
-                                domain: "FlutterContacts",
-                                code: -1,
-                                userInfo: [NSLocalizedDescriptionKey: "fetchChanges returned nil"]
-                            )
-                        }
+                        )
 
                         let rawUpdated = fetchResult["updated"] as? [[String: Any]] ?? []
                         var updated: [[String: Any?]] = []
