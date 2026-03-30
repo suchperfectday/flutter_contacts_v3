@@ -330,6 +330,7 @@ class FlutterContacts {
         'token': map['token'] as String?,
         'updated': updated,
         'deleted': deleted,
+        'hasChanges': map['hasChanges'] as bool? ?? (updated.isNotEmpty || deleted.isNotEmpty),
       };
     } on PlatformException {
       return null;
