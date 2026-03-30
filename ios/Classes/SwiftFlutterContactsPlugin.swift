@@ -686,62 +686,48 @@ public class SwiftFlutterContactsPlugin: NSObject, FlutterPlugin, FlutterStreamH
                     if withThumbnail { keys.append(CNContactThumbnailImageDataKey as CNKeyDescriptor) }
                     if withPhoto { keys.append(CNContactImageDataKey as CNKeyDescriptor) }
 
-                    let store = CNContactStore()
+                    var tokenData: Data? = nil
+                    if let tokenBase64 = tokenBase64 {
+                        tokenData = Data(base64Encoded: tokenBase64)
+                    }
 
-                    if #available(iOS 18, *) {
-                        do {
-                            let request = CNChangeHistoryFetchRequest()
-                            if let tokenBase64 = tokenBase64,
-                               let tokenData = Data(base64Encoded: tokenBase64) {
-                                request.startingToken = tokenData
-                            }
-                            request.additionalContactKeyDescriptors = keys
+                    do {
+                        guard let fetchResult = try CNChangeHistoryHelper.fetchChanges(
+                            since: tokenData,
+                            additionalKeys: keys
+                        ) else {
+                            throw NSError(
+                                domain: "FlutterContacts",
+                                code: -1,
+                                userInfo: [NSLocalizedDescriptionKey: "fetchChanges returned nil"]
+                            )
+                        }
 
-                            let fetchResult = try store.enumeratorForChangeHistory(matching: request)
-                            var updated: [[String: Any?]] = []
-                            var deleted: [String] = []
-
-                            for event in fetchResult.value {
-                                if let addEvent = event as? CNChangeHistoryAddContactEvent {
-                                    updated.append(Contact(fromContact: addEvent.contact).toMap())
-                                } else if let updateEvent = event as? CNChangeHistoryUpdateContactEvent {
-                                    updated.append(Contact(fromContact: updateEvent.contact).toMap())
-                                } else if let deleteEvent = event as? CNChangeHistoryDeleteContactEvent {
-                                    deleted.append(deleteEvent.contactIdentifier)
-                                }
-                            }
-
-                            let newToken = fetchResult.currentHistoryToken
-                            let newTokenBase64 = newToken?.base64EncodedString()
-
-                            DispatchQueue.main.async {
-                                result([
-                                    "token": newTokenBase64 as Any,
-                                    "updated": updated,
-                                    "deleted": deleted,
-                                ] as [String: Any])
-                            }
-                        } catch {
-                            DispatchQueue.main.async {
-                                result(FlutterError(
-                                    code: "CHANGE_HISTORY_ERROR",
-                                    message: "Failed to fetch change history",
-                                    details: error.localizedDescription
-                                ))
+                        let rawUpdated = fetchResult["updated"] as? [[String: Any]] ?? []
+                        var updated: [[String: Any?]] = []
+                        for item in rawUpdated {
+                            if let contact = item["contact"] as? CNContact {
+                                updated.append(Contact(fromContact: contact).toMap())
                             }
                         }
-                    } else {
-                        let currentToken = store.currentHistoryToken
-                        let currentTokenBase64 = currentToken?.base64EncodedString()
-                        let hasChanges = (tokenBase64 == nil) || (currentTokenBase64 != tokenBase64)
+                        let deleted = fetchResult["deleted"] as? [String] ?? []
+                        let newToken = fetchResult["token"] as? Data
+                        let newTokenBase64 = newToken?.base64EncodedString()
 
                         DispatchQueue.main.async {
                             result([
-                                "token": currentTokenBase64 as Any,
-                                "updated": [] as [[String: Any?]],
-                                "deleted": [] as [String],
-                                "hasChanges": hasChanges,
+                                "token": newTokenBase64 as Any,
+                                "updated": updated,
+                                "deleted": deleted,
                             ] as [String: Any])
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            result(FlutterError(
+                                code: "CHANGE_HISTORY_ERROR",
+                                message: "Failed to fetch change history",
+                                details: error.localizedDescription
+                            ))
                         }
                     }
                 } else {
@@ -755,8 +741,7 @@ public class SwiftFlutterContactsPlugin: NSObject, FlutterPlugin, FlutterStreamH
         case "getCurrentHistoryToken":
             DispatchQueue.global(qos: .userInteractive).async {
                 if #available(iOS 13, *) {
-                    let store = CNContactStore()
-                    if let token = store.currentHistoryToken {
+                    if let token = CNChangeHistoryHelper.currentHistoryToken() {
                         result(token.base64EncodedString())
                     } else {
                         result(nil)
