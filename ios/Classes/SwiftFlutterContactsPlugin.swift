@@ -760,7 +760,7 @@ public class SwiftFlutterContactsPlugin: NSObject, FlutterPlugin, FlutterStreamH
         NotificationCenter.default.addObserver(
             forName: NSNotification.Name.CNContactStoreDidChange,
             object: nil,
-            queue: nil,
+            queue: OperationQueue.main,
             using: { _ in events([]) }
         )
         return nil
