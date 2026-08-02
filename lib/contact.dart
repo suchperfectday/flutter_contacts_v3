@@ -284,7 +284,7 @@ class Contact {
     String websites = this.websites.map((e) => e.url).join(",");
     this.socialMedias.sort((a, b) => a.toString().compareTo(b.toString()));
     String socialMedias = this.socialMedias.map((e) => e.toString()).join(",");
-    String contexts = this.name.prefix;
+    String contexts = this.name.nickname;
     String notes = this.name.suffix;
 
     Event? birthday = this
