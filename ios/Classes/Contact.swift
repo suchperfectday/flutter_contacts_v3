@@ -16,6 +16,7 @@ struct Contact {
     var socialMedias: [SocialMedia] = []
     var events: [Event] = []
     var notes: [Note] = []
+    var relations: [Relation] = []
     var accounts: [Account] = []
     var groups: [Group] = []
 
@@ -37,6 +38,9 @@ struct Contact {
         }
         events = (m["events"] as! [[String: Any?]]).map { Event(fromMap: $0) }
         notes = (m["notes"] as! [[String: Any]]).map { Note(fromMap: $0) }
+        relations = (m["relations"] as! [[String: Any]]).map {
+            Relation(fromMap: $0)
+        }
         accounts = (m["accounts"] as! [[String: Any]]).map { Account(fromMap: $0) }
         groups = (m["groups"] as! [[String: Any]]).map { Group(fromMap: $0) }
     }
@@ -79,6 +83,9 @@ struct Contact {
             if c.isKeyAvailable(CNContactNoteKey) {
                 notes = [Note(fromContact: c)]
             }
+            if c.isKeyAvailable(CNContactRelationsKey) {
+                relations = c.contactRelations.map { Relation(fromRelation: $0) }
+            }
         }
         if c.isKeyAvailable(CNContactThumbnailImageDataKey) {
             thumbnail = c.thumbnailImageData
@@ -103,6 +110,7 @@ struct Contact {
         "socialMedias": socialMedias.map { $0.toMap() },
         "events": events.map { $0.toMap() },
         "notes": notes.map { $0.toMap() },
+        "relations": relations.map { $0.toMap() },
         "accounts": accounts.map { $0.toMap() },
         "groups": groups.map { $0.toMap() },
     ]

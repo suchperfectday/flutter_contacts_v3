@@ -113,6 +113,9 @@ class Contact {
   /// Notes.
   List<Note> notes;
 
+  /// Labeled related names (iOS only).
+  List<Relation> relations;
+
   /// Raw accounts (Android only).
   List<Account> accounts;
 
@@ -147,6 +150,7 @@ class Contact {
     List<SocialMedia>? socialMedias,
     List<Event>? events,
     List<Note>? notes,
+    List<Relation>? relations,
     List<Account>? accounts,
     List<Group>? groups,
   })  : name = name ?? Name(),
@@ -158,6 +162,7 @@ class Contact {
         socialMedias = socialMedias ?? <SocialMedia>[],
         events = events ?? <Event>[],
         notes = notes ?? <Note>[],
+        relations = relations ?? <Relation>[],
         accounts = accounts ?? <Account>[],
         groups = groups ?? <Group>[];
 
@@ -193,6 +198,9 @@ class Contact {
         notes: ((json['notes'] as List?) ?? [])
             .map((x) => Note.fromJson(Map<String, dynamic>.from(x)))
             .toList(),
+        relations: ((json['relations'] as List?) ?? [])
+            .map((x) => Relation.fromJson(Map<String, dynamic>.from(x)))
+            .toList(),
         accounts: ((json['accounts'] as List?) ?? [])
             .map((x) => Account.fromJson(Map<String, dynamic>.from(x)))
             .toList(),
@@ -221,6 +229,7 @@ class Contact {
         'socialMedias': socialMedias.map((x) => x.toJson()).toList(),
         'events': events.map((x) => x.toJson()).toList(),
         'notes': notes.map((x) => x.toJson()).toList(),
+        'relations': relations.map((x) => x.toJson()).toList(),
         'accounts': accounts.map((x) => x.toJson()).toList(),
         'groups': groups.map((x) => x.toJson()).toList(),
       });
@@ -240,7 +249,8 @@ class Contact {
       _listHashCode(websites) ^
       _listHashCode(socialMedias) ^
       _listHashCode(events) ^
-      _listHashCode(notes);
+      _listHashCode(notes) ^
+      _listHashCode(relations);
 
   @override
   bool operator ==(Object o) =>
@@ -258,7 +268,8 @@ class Contact {
       _listEqual(o.websites, websites) &&
       _listEqual(o.socialMedias, socialMedias) &&
       _listEqual(o.events, events) &&
-      _listEqual(o.notes, notes);
+      _listEqual(o.notes, notes) &&
+      _listEqual(o.relations, relations);
 
   @override
   String toString() =>
@@ -266,7 +277,8 @@ class Contact {
       'photo=$photo, isStarred=$isStarred, name=$name, phones=$phones, '
       'emails=$emails, addresses=$addresses, organizations=$organizations, '
       'websites=$websites, socialMedias=$socialMedias, events=$events, '
-      'notes=$notes, accounts=$accounts, groups=$groups)';
+      'notes=$notes, relations=$relations, accounts=$accounts, '
+      'groups=$groups)';
 
   String toStringForHash(){
     String displayName = this.displayName;
@@ -284,7 +296,10 @@ class Contact {
     String websites = this.websites.map((e) => e.url).join(",");
     this.socialMedias.sort((a, b) => a.toString().compareTo(b.toString()));
     String socialMedias = this.socialMedias.map((e) => e.toString()).join(",");
-    String contexts = this.name.prefix;
+    String prefix = this.name.prefix;
+    List<String> relationParts =
+        this.relations.map((e) => "${e.label}=${e.name}").toList()..sort();
+    String relations = relationParts.join(",");
     String notes = this.name.suffix;
 
     Event? birthday = this
@@ -299,7 +314,7 @@ class Contact {
         : null;
     String dob = birthday != null ? birthday.toString() : '';
 
-    return "$displayName$phones$city$country$email$title$company$websites$socialMedias$thumbnail$contexts$notes$dob";
+    return "$displayName$phones$city$country$email$title$company$websites$socialMedias$thumbnail$prefix$relations$notes$dob";
   }
 
   /// Inserts the contact into the database.

@@ -17,6 +17,7 @@ export 'properties/name.dart';
 export 'properties/note.dart';
 export 'properties/organization.dart';
 export 'properties/phone.dart';
+export 'properties/relation.dart';
 export 'properties/social_media.dart';
 export 'properties/website.dart';
 
