@@ -686,6 +686,7 @@ public class SwiftFlutterContactsPlugin: NSObject, FlutterPlugin, FlutterStreamH
                             CNContactInstantMessageAddressesKey as CNKeyDescriptor,
                             CNContactBirthdayKey as CNKeyDescriptor,
                             CNContactDatesKey as CNKeyDescriptor,
+                            CNContactRelationsKey as CNKeyDescriptor,
                             CNContactPhoneticOrganizationNameKey as CNKeyDescriptor,
                         ]
                     }
